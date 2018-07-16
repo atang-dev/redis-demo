@@ -133,7 +133,7 @@ app.get('/lpush', async (req, res) => {
 	});
 	var listkey = Forpush.next();
 	
-	console.log(listkey);
+	logger.info(listkey);
 	client.lpush(listkey, value, function(error, res) {
 		if(error) {
 			//console.log(error);
@@ -161,7 +161,7 @@ app.get('/lpop', async (req, res) => {
 		logger.info(error);
 	});
 	var listkey = Forpop.next();
-	console.log(listkey);
+	logger.info(listkey);
 	client.lpop(listkey, function(error, res) {
 		if(error) {
 			//console.log(error);
