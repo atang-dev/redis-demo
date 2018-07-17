@@ -63,7 +63,7 @@ var redis_config = {
 };
 var client = redis.createClient(redis_config);
 var setkey = Math.random().toString(36).substr(2);
-
+//get
 app.get('/get', async (req, res) => {
 	var randomNum = Math.random()*1000;
 	var setkey = parseInt(randomNum,10);
@@ -93,7 +93,7 @@ app.get('/get', async (req, res) => {
 	
 	res.send("request successfully!");	
 })
-
+//set
 app.get('/set', async (req, res) => {
 	//redis 链接错误
 	var randomNum = Math.random()*1000;
@@ -121,7 +121,7 @@ app.get('/set', async (req, res) => {
 	
 	res.send("request successfully!");	
 })
-
+//lpush
 app.get('/lpush', async (req, res) => {
 	//redis 链接错误
 	var value = randomString();
@@ -151,7 +151,7 @@ app.get('/lpush', async (req, res) => {
 	
 	res.send("request successfully!");	
 })
-
+//lpop
 app.get('/lpop', async (req, res) => {
 	//redis 链接错误
 	//var value = Math.random().toString(36).substr(2);
@@ -177,8 +177,62 @@ app.get('/lpop', async (req, res) => {
 	
 	res.send("request successfully!");	
 })
+//mset
+app.get('/mset', async (req, res) => {
+	//redis 链接错误
+	//var value = randomString();
+	//var value = Math.random().toString(36).substr(2);
+	client.on("error", function(error) {
+		//console.log(error);
+		//res.send(error);
+		logger.info(error);
+	});
+	//var listkey = Forpush.next();
+	
+	//logger.log(listkey);
+	client.mset(Forpush.next(), randomString(), Forpush.next(), randomString(), function(error, res) {
+		if(error) {
+			//console.log(error);
+			//res.send(error);
+			logger.info(error);
+		} else {
+			//console.log(res);
+			//console.log("set successfully!");
+			
+			//logger.info(value);
+			logger.info(res);
+			logger.info("mset successfully!");
+		}
+		});
+	
+	res.send("request successfully!");	
+})
 
+//mget
+app.get('/mget', async (req, res) => {
+	//redis 链接错误
+	//var value = Math.random().toString(36).substr(2);
+	client.on("error", function(error) {
+		//console.log(error);
+		//res.send(error);
+		logger.info(error);
+	});
 
+	client.mget(Forpop.next(), Forpop.next(), function(error, res) {
+		if(error) {
+			//console.log(error);
+			//res.send(error);
+			logger.info(error);
+		} else {
+			//console.log(res);
+			//console.log("set successfully!");
+			logger.info(res);
+			logger.info("mget successfully!");
+		}
+		});
+	
+	res.send("request successfully!");	
+})
 
 function randomString(len) {
 　　len = len || 32;
