@@ -214,12 +214,12 @@ function randomString(len) {
 
 function getvalue(len) {
 		var value = '';
-		if ( valuelen == 1000 ) {
+		if ( len == 1000 ) {
 			value = fs.readFileSync("thousand.txt","utf-8");
-		} else if ( valuelen == 10000 ) {
+		} else if ( len == 10000 ) {
 			value = fs.readFileSync("ten-thousand.txt","utf-8");
 		} else {
-			value = randomString(); 
+			value = randomString(len); 
 		}
 		return value;
 }
