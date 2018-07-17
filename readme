@@ -1,0 +1,18 @@
+env:
+NUM 0  //get ：set的比例
+HOST 192.168.1.226 //redis的链接地址，端口默认为6379
+LEN 32 //写到redis的value的字节数
+
+制作镜像
+docker build -t redis:latest .
+
+运行镜像
+docker run redis:latest
+
+rest接口
+1、/set //command set
+2、/get //command get
+3、/lpush //command lpush
+4、/lpop //command lpop
+5、/mset //command mset
+6、/mget //command mget
