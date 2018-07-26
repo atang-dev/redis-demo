@@ -2,34 +2,46 @@
 var redis = require('redis');
 var express = require('express');
 var app = express();
-const uuidv4 = require('uuid/v4');
 const log4js = require('log4js');
 var fs = require("fs");
 
 //env
-var num = process.env.NUM;
+
 var HOST = process.env.HOST;
 var valuelen = process.env.LEN;
 
+var redisPool = require('redis-connection-pool')('myRedisPool', {
+    host: HOST, // default 
+    port: 6379, //default 
+    max_clients: 1000, // defalut 
+    perform_checks: false, // checks for needed push/pop functionality 
+    database: 0, // database number to use 
+    //options: {
+    //  auth_pass: 'password'
+    //} //options for createClient of node-redis, optional 
+  });
+
 var redis_port = 6379;
+var initvalue = randomString(6);
+console.log(initvalue);
 var Forpush = new random();
 var Forpop = new random();
-Forpush.init('abcd');
-Forpop.init('abcd');
+var Forhset = new random();
+var Forhget = new random();
+//Forpush.init('abcd000');
+//Forpop.init('abcd000');
 
 function random(){
-  var i=0, f;
-  return {
-    next: function(){
-		i++;
-		if (i > 100000) {
-			i = 0;
+	var i=0;
+	return {
+		next: function(){
+			i++;
+			if (i > 700000) {
+				i = 0;
+			}
+			return initvalue + i;
 		}
-        return "abcd" + i;
-    }, init: function(format){
-      f = format;
-    }
-  };
+	};
 }
 
 log4js.configure({
@@ -68,68 +80,72 @@ var redis_config = {
     "host": HOST,
     "port": 6379
 };
-var client = redis.createClient(redis_config);
 
 //get
 app.get('/get', async (req, res) => {
+	//var client = redis.createClient(redis_config);
 	var randomNum = Math.random()*1000;
 	var setkey = parseInt(randomNum,10);
 	//redis 链接错误
-	client.on("error", function(error) {
-		logger.info(error);
-	});
-
-	for ( i = 0; i <= num; i++ ) {
-		client.get(setkey, function(error, res){
+	//client.on("error", function(error) {
+	//	logger.info(error);
+	//});
+	
+	redisPool.get(setkey, function(error, res){
+		//logger.info("enter get exec");
 		if(error) {
 			logger.info(error);
-		} else {
-			logger.info(setkey);
-			logger.info(res);
-			logger.info("get successfully");
-		}
-		});
-	}
-			
+		} //else {
+			//logger.info(setkey);
+		//	logger.info(res);
+		//	logger.info("get successfully!");
+		//}
+	});
+	
+	//client.quit();	
 	res.send("request successfully!");	
 })
 //set
 app.get('/set', async (req, res) => {
+	//var client = redis.createClient(redis_config);
 	//redis 链接错误
-	var randomNum = Math.random()*1000;
+	var randomNum = Math.random()*100000;
 	var setkey = parseInt(randomNum,10);
 	var value = getvalue(valuelen);	
-	console.log(setkey);
-	client.on("error", function(error) {
-		logger.info(error);
-	});
+	//logger.info(setkey);
+	//client.on("error", function(error) {
+	//	logger.info(error);
+	//});
 
-	client.set(setkey, value, function(error, res) {
+	redisPool.set(setkey, value, function(error, res) {
+		//logger.info("enter set exec");
 		if(error) {
 			logger.info(error);
-		} else {
-			logger.info(setkey);
-			logger.info(res);
+		}// else {
+			//logger.info(res);
 			logger.info("set successfully!");
-		}
-		});
+		//}
+	});
 	
+	//client.quit();
 	res.send("request successfully!");	
 })
 //lpush
 app.get('/lpush', async (req, res) => {
+	//var client = redis.createClient(redis_config);
 	//set value
 	var value = getvalue(valuelen);
-	console.log(value);
+	//console.log(value);
 	//redis 链接错误
-	client.on("error", function(error) {
-		logger.info(error);
-	});
+	//client.on("error", function(error) {
+	//	logger.info(error);
+	//});
 	var listkey = '';
 	listkey = Forpush.next();
 	
-	logger.info(listkey);
-	client.lpush(listkey, value, function(error, res) {
+	//logger.info(listkey);
+	redisPool.lpush(listkey, value, function(error, res) {
+		logger.info("enter lpush exec");
 		if(error) {
 			logger.info(error);
 		} else {
@@ -137,17 +153,21 @@ app.get('/lpush', async (req, res) => {
 			logger.info("lpush successfully!");
 		}
 		});
+	//client.quit();
 	res.send("request successfully!");	
 })
 //lpop
 app.get('/lpop', async (req, res) => {
+	//var client = redis.createClient(redis_config);
 	//redis 链接错误
-	client.on("error", function(error) {
-		logger.info(error);
-	});
+	//client.on("error", function(error) {
+	//	logger.info(error);
+	//});
 	var listkey = Forpop.next();
-	logger.info(listkey);
-	client.lpop(listkey, function(error, res) {
+	
+	//logger.info(listkey);
+	redisPool.blpop(listkey, function(error, res) {
+		logger.info("enter lpop exec");
 		if(error) {
 			logger.info(error);
 		} else {
@@ -155,41 +175,47 @@ app.get('/lpop', async (req, res) => {
 			logger.info("lpop successfully!");
 		}
 		});
-	
+	//client.quit();
 	res.send("request successfully!");	
 })
 //mset
 app.get('/mset', async (req, res) => {
+	//var client = redis.createClient(redis_config);
 	//set value
 	var value = getvalue(valuelen);
-	var value1 = getvalue(valuelen);
+	//var value1 = getvalue(valuelen);
 	//redis 链接错误
-	client.on("error", function(error) {
-		logger.info(error);
-	});
-	
-	client.mset(Forpush.next(), value, Forpush.next(), value1, function(error, res) {
+	//client.on("error", function(error) {
+	//	logger.info(error);
+	//});
+	var listkey = Forhset.next();
+	logger.info(listkey);
+	redisPool.hset(listkey, "demo:redis", value, function(error, res) {
+		logger.info("enter hset exec");
 		if(error) {
 			logger.info(error);
 		} else {
 			logger.info(value);
-			logger.info(value1);
+			//logger.info(value1);
 			logger.info(res);
 			logger.info("mset successfully!");
 		}
 		});
-	
+	//client.quit();
 	res.send("request successfully!");	
 })
 
 //mget
 app.get('/mget', async (req, res) => {
+	//var client = redis.createClient(redis_config);
 	//redis 链接错误
-	client.on("error", function(error) {
-		logger.info(error);
-	});
-
-	client.mget(Forpop.next(), Forpop.next(), function(error, res) {
+	//client.on("error", function(error) {
+	//	logger.info(error);
+	//});
+	var listkey = Forhget.next();
+	//logger.info(listkey);
+	redisPool.hget(listkey, "demo:redis", function(error, res) {
+		logger.info("enter hget exec");
 		if(error) {
 			logger.info(error);
 		} else {
@@ -197,7 +223,7 @@ app.get('/mget', async (req, res) => {
 			logger.info("mget successfully!");
 		}
 		});
-	
+	//client.quit();
 	res.send("request successfully!");	
 })
 
