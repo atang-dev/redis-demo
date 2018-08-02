@@ -15,3 +15,5 @@ rest接口
 4、/lpop //command lpop
 5、/mset //command mset
 6、/mget //command mget
+7、/hset //command hset
+8、/hget //command hget
