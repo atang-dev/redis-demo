@@ -178,8 +178,8 @@ app.get('/lpop', async (req, res) => {
 	//client.quit();
 	res.send("request successfully!");	
 })
-//mset
-app.get('/mset', async (req, res) => {
+//hset
+app.get('/hset', async (req, res) => {
 	//var client = redis.createClient(redis_config);
 	//set value
 	var value = getvalue(valuelen);
@@ -205,8 +205,8 @@ app.get('/mset', async (req, res) => {
 	res.send("request successfully!");	
 })
 
-//mget
-app.get('/mget', async (req, res) => {
+//hget
+app.get('/hget', async (req, res) => {
 	//var client = redis.createClient(redis_config);
 	//redis 链接错误
 	//client.on("error", function(error) {
@@ -224,6 +224,56 @@ app.get('/mget', async (req, res) => {
 		}
 		});
 	//client.quit();
+	res.send("request successfully!");	
+})
+
+//mget
+app.get('/mget', async (req, res) => {
+	var client = redis.createClient(redis_config);
+	var randomNum = Math.random()*1000;
+	var setkey = parseInt(randomNum,10);
+	//redis 链接错误
+	client.on("error", function(error) {
+		logger.info(error);
+	});
+	
+	client.mget(setkey, function(error, res){
+		//logger.info("enter get exec");
+		if(error) {
+			logger.info(error);
+		} //else {
+			//logger.info(setkey);
+		//	logger.info(res);
+		//	logger.info("get successfully!");
+		//}
+	});
+	
+	client.quit();	
+	res.send("request successfully!");	
+})
+//mset
+app.get('/mset', async (req, res) => {
+	var client = redis.createClient(redis_config);
+	//redis 链接错误
+	var randomNum = Math.random()*100000;
+	var setkey = parseInt(randomNum,10);
+	var value = getvalue(valuelen);	
+	//logger.info(setkey);
+	client.on("error", function(error) {
+		logger.info(error);
+	});
+
+	client.set(setkey, value, function(error, res) {
+		//logger.info("enter set exec");
+		if(error) {
+			logger.info(error);
+		}// else {
+			//logger.info(res);
+			logger.info("set successfully!");
+		//}
+	});
+	
+	client.quit();
 	res.send("request successfully!");	
 })
 
