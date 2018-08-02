@@ -1,5 +1,4 @@
 env:
-NUM 0  //get ：set的比例
 HOST 192.168.1.226 //redis的链接地址，端口默认为6379
 LEN 32 //写到redis的value的字节数
 
