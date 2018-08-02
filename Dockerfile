@@ -2,7 +2,6 @@ From node:latest
 
 COPY ./package* /home/node/
 COPY ./redis.js /home/node/
-COPY ./redis.js /home/node/
 COPY ./thousand.txt /home/node/
 COPY ./ten-thousand.txt /home/node/
 
